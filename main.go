@@ -339,15 +339,10 @@ func (d *Dialer) Exec(command string, buildResponse bool, retryCount int, proces
 				log(d.ConnNum, d.Folder, fmt.Sprintf("<- %s", dropNl(line)))
 			}
 
-			// if strings.Contains(string(line), "--00000000000030095105741e7f1f") {
-			// 	f, _ := ioutil.TempFile("", "")
-			// 	ioutil.WriteFile(f.Name(), line, 0777)
-			// 	fmt.Println(f.Name())
-			// }
-
-			if len(line) >= 19 && bytes.Equal(line[:16], tag) {
-				if !bytes.Equal(line[17:19], []byte("OK")) {
-					err = fmt.Errorf("imap command failed: %s", line[20:])
+			if len(line) >= len(tag) && bytes.Equal(line[:len(tag)], tag) {
+				str := strings.ToLower(string(line))
+				if !strings.Contains(str, "ok") && !strings.Contains(str, "success") {
+					err = fmt.Errorf("imap command failed: %s", line[len(tag):])
 					return
 				}
 				break
